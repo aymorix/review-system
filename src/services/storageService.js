@@ -1,16 +1,29 @@
 export const formatGoogleReviewUrl = (rawUrl) => {
-  const defaultPlaceId = '0x3bd4bfdf9ca3b3db:0x209dac7c9e6a418b';
-  
-  // Detect if user is on a mobile device (phone/tablet) vs laptop/desktop
+  let url = typeof rawUrl === 'string' ? rawUrl.trim() : '';
+
+  // Purge any outdated or broken URLs stored in browser localStorage
+  if (!url || url.includes('writereview?placeid=0x') || url.includes('#lrd=')) {
+    url = '';
+  }
+
+  // If user configured a valid custom HTTP link (e.g. g.page/r/.../review), use it
+  if (url && url.startsWith('http')) {
+    return url;
+  }
+
+  const featureId = '0x3bd4bfdf9ca3b3db:0x209dac7c9e6a418b';
+  const cid = '2350228308708319627'; // Decimal CID for Aymorix Technologies
+
+  // Detect mobile device (phone / tablet) vs laptop/desktop
   const isMobile = typeof navigator !== 'undefined' && 
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || '');
 
   if (isMobile) {
-    // Phone URL: Opens Google Maps / Mobile Chrome review screen directly
-    return `https://search.google.com/local/writereview?placeid=${defaultPlaceId}`;
+    // Phone link: Direct Google Maps CID link (Never 404 on mobile)
+    return `https://maps.google.com/?cid=${cid}`;
   } else {
-    // Laptop / PC URL: Google Search with #lrd=...,3 opens Desktop Write-Review popup dialog
-    return `https://www.google.com/search?q=aymorix+technologies#lrd=${defaultPlaceId},3`;
+    // Laptop link: Google Search with #lrd=...,3 opens Desktop Write-Review popup box
+    return `https://www.google.com/search?q=aymorix+technologies#lrd=${featureId},3`;
   }
 };
 
@@ -18,7 +31,7 @@ export const formatGoogleReviewUrl = (rawUrl) => {
 const DEFAULT_CONFIG = {
   companyName: 'Aymorix Technologies',
   companySubtitle: 'Software & Technology Solutions',
-  googleReviewUrl: 'https://search.google.com/local/writereview?placeid=0x3bd4bfdf9ca3b3db:0x209dac7c9e6a418b',
+  googleReviewUrl: 'https://maps.google.com/?cid=2350228308708319627',
   
   // Google OAuth 2.0 Credentials for Sheets API
   googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID || '',
@@ -63,7 +76,7 @@ const REVIEWS_CACHE_KEY = 'aymorix_saved_reviews';
 const USED_REVIEWS_HISTORY_KEY = 'aymorix_used_reviews_history';
 
 export const getStoredConfig = () => {
-  const correctUrl = 'https://search.google.com/local/writereview?placeid=0x3bd4bfdf9ca3b3db:0x209dac7c9e6a418b';
+  const correctUrl = 'https://maps.google.com/?cid=2350228308708319627';
   try {
     const data = localStorage.getItem(CONFIG_KEY);
     

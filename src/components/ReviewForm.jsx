@@ -60,6 +60,22 @@ export const ReviewForm = ({ config, onOpenSuccess, isAiGenerated, setIsAiGenera
     }
   };
 
+  const resetForm = () => {
+    setName('');
+    setRating(5);
+    setAnswers({
+      q1: config.questions[0]?.options[0] || '',
+      q2: config.questions[1]?.options[0] || '',
+      q3: config.questions[2]?.options[0] || '',
+      q4: config.questions[3]?.options[0] || '',
+      q5: config.questions[4]?.options[0] || ''
+    });
+    setReviewComment('');
+    setIsAiGenerated(false);
+    setGenCount(0);
+    setErrorMsg('');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim()) { 
@@ -90,6 +106,7 @@ export const ReviewForm = ({ config, onOpenSuccess, isAiGenerated, setIsAiGenera
     await submitToGoogleSheets(config, payload);
     setSubmitting(false);
     onOpenSuccess({ reviewText: payload.comment, rating });
+    resetForm();
   };
 
   return (

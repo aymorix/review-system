@@ -45,9 +45,6 @@ export const SuccessModal = ({ isOpen, reviewText, rating, googleReviewUrl, onCl
           <h2 style={{ fontSize:'1.3rem', fontFamily:'var(--font-heading)', fontWeight:700, color:'var(--text-primary)', marginBottom:4 }}>
             Feedback Recorded!
           </h2>
-          <p style={{ fontSize:'0.84rem', color:'var(--text-secondary)' }}>
-            Saved to Aymorix Technologies' Google Sheet ✓
-          </p>
         </div>
 
         {/* Stars */}
