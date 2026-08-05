@@ -3,9 +3,9 @@ import confetti from 'canvas-confetti';
 import {
   CheckCircle2, Copy, Star, ExternalLink, X
 } from 'lucide-react';
-import { formatGoogleReviewUrl } from '../services/storageService';
+import { resolveGoogleReviewUrl } from '../services/storageService';
 
-export const SuccessModal = ({ isOpen, reviewText, rating, googleReviewUrl, onClose }) => {
+export const SuccessModal = ({ isOpen, reviewText, rating, googleReviewUrl, googleReviewUrlMobile, onClose }) => {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -100,7 +100,7 @@ export const SuccessModal = ({ isOpen, reviewText, rating, googleReviewUrl, onCl
 
         {/* CTA */}
         <a
-          href={formatGoogleReviewUrl(googleReviewUrl)}
+          href={resolveGoogleReviewUrl(googleReviewUrl, googleReviewUrlMobile, googleReviewUrl)}
           target="_blank"
           rel="noopener noreferrer"
           className="btn-primary"

@@ -14,33 +14,8 @@ const pickReviewUrlForDevice = ({ desktopUrl = '', mobileUrl = '', fallbackUrl =
   return desktop || fallback || mobile;
 };
 
-export const formatGoogleReviewUrl = (rawUrl) => {
-  let url = typeof rawUrl === 'string' ? rawUrl.trim() : '';
-
-  // Purge any outdated or broken URLs stored in browser localStorage
-  if (!url || url.includes('writereview?placeid=0x') || url.includes('#lrd=')) {
-    url = '';
-  }
-
-  // If user configured a valid custom HTTP link (e.g. g.page/r/.../review), use it
-  if (url && url.startsWith('http')) {
-    return url;
-  }
-
-  const featureId = '0x3bd4bfdf9ca3b3db:0x209dac7c9e6a418b';
-  const cid = '2350228308708319627'; // Decimal CID for Aymorix Technologies
-
-  // Detect mobile device (phone / tablet) vs laptop/desktop
-  const isMobile = typeof navigator !== 'undefined' && 
-    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || '');
-
-  if (isMobile) {
-    // Phone link: Direct Google Maps CID link (Never 404 on mobile)
-    return `https://maps.google.com/?cid=${cid}`;
-  } else {
-    // Laptop link: Google Search with #lrd=...,3 opens Desktop Write-Review popup box
-    return `https://www.google.com/search?q=aymorix+technologies#lrd=${featureId},3`;
-  }
+export const resolveGoogleReviewUrl = (desktopUrl, mobileUrl, fallbackUrl = '') => {
+  return pickReviewUrlForDevice({ desktopUrl, mobileUrl, fallbackUrl });
 };
 
 // Default configuration values reading from environment variables
@@ -93,33 +68,24 @@ const REVIEWS_CACHE_KEY = 'aymorix_saved_reviews';
 const USED_REVIEWS_HISTORY_KEY = 'aymorix_used_reviews_history';
 
 export const getStoredConfig = () => {
-  const correctUrl = 'https://maps.google.com/?cid=2350228308708319627';
   try {
     const data = localStorage.getItem(CONFIG_KEY);
     const envDesktopUrl = DEFAULT_CONFIG.googleReviewUrl || '';
     const envMobileUrl = DEFAULT_CONFIG.googleReviewUrlMobile || '';
+
+    const resolvedUrl = resolveGoogleReviewUrl(envDesktopUrl, envMobileUrl, '');
     
     if (!data) {
-      const googleReviewUrl = formatGoogleReviewUrl(
-        pickReviewUrlForDevice({
-          desktopUrl: envDesktopUrl,
-          mobileUrl: envMobileUrl,
-          fallbackUrl: correctUrl
-        })
-      );
-
-      return { ...DEFAULT_CONFIG, googleReviewUrl };
+      return { ...DEFAULT_CONFIG, googleReviewUrl: resolvedUrl };
     }
 
     const parsed = JSON.parse(data);
     
-    // Always resolve by device first, then sanitize the final URL.
-    parsed.googleReviewUrl = formatGoogleReviewUrl(
-      pickReviewUrlForDevice({
-        desktopUrl: envDesktopUrl,
-        mobileUrl: envMobileUrl,
-        fallbackUrl: parsed.googleReviewUrl || correctUrl
-      })
+    // Always resolve by device first and keep the env URL intact.
+    parsed.googleReviewUrl = resolveGoogleReviewUrl(
+      envDesktopUrl,
+      envMobileUrl,
+      parsed.googleReviewUrl || ''
     );
     
     // Overwrite stored localStorage config if it had outdated URL
@@ -145,12 +111,10 @@ export const getStoredConfig = () => {
     console.error('Failed to read config from localStorage', e);
     return {
       ...DEFAULT_CONFIG,
-      googleReviewUrl: formatGoogleReviewUrl(
-        pickReviewUrlForDevice({
-          desktopUrl: DEFAULT_CONFIG.googleReviewUrl,
-          mobileUrl: DEFAULT_CONFIG.googleReviewUrlMobile,
-          fallbackUrl: correctUrl
-        })
+      googleReviewUrl: resolveGoogleReviewUrl(
+        DEFAULT_CONFIG.googleReviewUrl,
+        DEFAULT_CONFIG.googleReviewUrlMobile,
+        ''
       )
     };
   }

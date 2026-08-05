@@ -96,6 +96,7 @@ export default function App() {
           reviewText={submitted.reviewText}
           rating={submitted.rating}
           googleReviewUrl={config.googleReviewUrl}
+          googleReviewUrlMobile={config.googleReviewUrlMobile}
         />
         <QrCodeModal
           isOpen={showQr}
