@@ -28,11 +28,6 @@ export const SuccessModal = ({ isOpen, reviewText, rating, googleReviewUrl, onCl
     });
   };
 
-  const handlePostReview = () => {
-    const directUrl = formatGoogleReviewUrl(googleReviewUrl);
-    window.open(directUrl, '_blank', 'noopener,noreferrer');
-  };
-
   return (
     <div className="modal-overlay">
       <div className="modal-box" style={{ position:'relative' }}>
@@ -107,15 +102,26 @@ export const SuccessModal = ({ isOpen, reviewText, rating, googleReviewUrl, onCl
         </div>
 
         {/* CTA */}
-        <button
-          onClick={handlePostReview}
+        <a
+          href={formatGoogleReviewUrl(googleReviewUrl)}
+          target="_blank"
+          rel="noopener noreferrer"
           className="btn-primary"
-          style={{ marginBottom:10 }}
+          style={{
+            marginBottom: 10,
+            textDecoration: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            width: '100%',
+            boxSizing: 'border-box'
+          }}
         >
           <Star size={17} fill="currentColor" strokeWidth={0} />
-          Post on Google Reviews
-          <ExternalLink size={16} style={{ marginLeft:'auto' }} />
-        </button>
+          <span>Post on Google Reviews</span>
+          <ExternalLink size={16} style={{ marginLeft: 'auto' }} />
+        </a>
 
         <button onClick={onClose} className="btn-secondary" style={{ width:'100%', justifyContent:'center' }}>
           Submit Another Review

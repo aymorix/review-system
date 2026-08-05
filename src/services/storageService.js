@@ -1,21 +1,24 @@
 export const formatGoogleReviewUrl = (rawUrl) => {
-  const defaultUrl = 'https://www.google.com/search?q=aymorix+technologies#lrd=0x3bd4bfdf9ca3b3db:0x209dac7c9e6a418b,2';
-  if (!rawUrl || typeof rawUrl !== 'string') return defaultUrl;
-  let url = rawUrl.trim();
-  if (url.includes('#lrd=')) {
-    // Replace #lrd=<id>,<mode>... with #lrd=<id>,2
-    url = url.replace(/#lrd=([^,]+),.*/, '#lrd=$1,2');
+  const defaultPlaceId = '0x3bd4bfdf9ca3b3db:0x209dac7c9e6a418b';
+  
+  // Detect if user is on a mobile device (phone/tablet) vs laptop/desktop
+  const isMobile = typeof navigator !== 'undefined' && 
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || '');
+
+  if (isMobile) {
+    // Phone URL: Opens Google Maps / Mobile Chrome review screen directly
+    return `https://search.google.com/local/writereview?placeid=${defaultPlaceId}`;
   } else {
-    url = defaultUrl;
+    // Laptop / PC URL: Google Search with #lrd=...,3 opens Desktop Write-Review popup dialog
+    return `https://www.google.com/search?q=aymorix+technologies#lrd=${defaultPlaceId},3`;
   }
-  return url;
 };
 
 // Default configuration values reading from environment variables
 const DEFAULT_CONFIG = {
   companyName: 'Aymorix Technologies',
   companySubtitle: 'Software & Technology Solutions',
-  googleReviewUrl: 'https://www.google.com/search?q=aymorix+technologies#lrd=0x3bd4bfdf9ca3b3db:0x209dac7c9e6a418b,2',
+  googleReviewUrl: 'https://search.google.com/local/writereview?placeid=0x3bd4bfdf9ca3b3db:0x209dac7c9e6a418b',
   
   // Google OAuth 2.0 Credentials for Sheets API
   googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID || '',
@@ -60,7 +63,7 @@ const REVIEWS_CACHE_KEY = 'aymorix_saved_reviews';
 const USED_REVIEWS_HISTORY_KEY = 'aymorix_used_reviews_history';
 
 export const getStoredConfig = () => {
-  const correctUrl = 'https://www.google.com/search?q=aymorix+technologies#lrd=0x3bd4bfdf9ca3b3db:0x209dac7c9e6a418b,2';
+  const correctUrl = 'https://search.google.com/local/writereview?placeid=0x3bd4bfdf9ca3b3db:0x209dac7c9e6a418b';
   try {
     const data = localStorage.getItem(CONFIG_KEY);
     
