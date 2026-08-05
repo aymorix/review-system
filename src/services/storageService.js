@@ -1,3 +1,19 @@
+const isMobileDevice = () => {
+  return typeof navigator !== 'undefined' && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || '');
+};
+
+const pickReviewUrlForDevice = ({ desktopUrl = '', mobileUrl = '', fallbackUrl = '' } = {}) => {
+  const desktop = typeof desktopUrl === 'string' ? desktopUrl.trim() : '';
+  const mobile = typeof mobileUrl === 'string' ? mobileUrl.trim() : '';
+  const fallback = typeof fallbackUrl === 'string' ? fallbackUrl.trim() : '';
+
+  if (isMobileDevice()) {
+    return mobile || fallback || desktop;
+  }
+
+  return desktop || fallback || mobile;
+};
+
 export const formatGoogleReviewUrl = (rawUrl) => {
   let url = typeof rawUrl === 'string' ? rawUrl.trim() : '';
 
@@ -31,7 +47,8 @@ export const formatGoogleReviewUrl = (rawUrl) => {
 const DEFAULT_CONFIG = {
   companyName: 'Aymorix Technologies',
   companySubtitle: 'Software & Technology Solutions',
-  googleReviewUrl: 'https://maps.google.com/?cid=2350228308708319627',
+  googleReviewUrl: import.meta.env.VITE_GOOGLE_REVIEW_URL || '',
+  googleReviewUrlMobile: import.meta.env.VITE_GOOGLE_REVIEW_URL_MOBILE || '',
   
   // Google OAuth 2.0 Credentials for Sheets API
   googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID || '',
@@ -79,15 +96,31 @@ export const getStoredConfig = () => {
   const correctUrl = 'https://maps.google.com/?cid=2350228308708319627';
   try {
     const data = localStorage.getItem(CONFIG_KEY);
+    const envDesktopUrl = DEFAULT_CONFIG.googleReviewUrl || '';
+    const envMobileUrl = DEFAULT_CONFIG.googleReviewUrlMobile || '';
     
     if (!data) {
-      return { ...DEFAULT_CONFIG, googleReviewUrl: correctUrl };
+      const googleReviewUrl = formatGoogleReviewUrl(
+        pickReviewUrlForDevice({
+          desktopUrl: envDesktopUrl,
+          mobileUrl: envMobileUrl,
+          fallbackUrl: correctUrl
+        })
+      );
+
+      return { ...DEFAULT_CONFIG, googleReviewUrl };
     }
 
     const parsed = JSON.parse(data);
     
-    // Always force clean review URL with mode ,2
-    parsed.googleReviewUrl = formatGoogleReviewUrl(parsed.googleReviewUrl || correctUrl);
+    // Always resolve by device first, then sanitize the final URL.
+    parsed.googleReviewUrl = formatGoogleReviewUrl(
+      pickReviewUrlForDevice({
+        desktopUrl: envDesktopUrl,
+        mobileUrl: envMobileUrl,
+        fallbackUrl: parsed.googleReviewUrl || correctUrl
+      })
+    );
     
     // Overwrite stored localStorage config if it had outdated URL
     try {
@@ -112,7 +145,13 @@ export const getStoredConfig = () => {
     console.error('Failed to read config from localStorage', e);
     return {
       ...DEFAULT_CONFIG,
-      googleReviewUrl: correctUrl
+      googleReviewUrl: formatGoogleReviewUrl(
+        pickReviewUrlForDevice({
+          desktopUrl: DEFAULT_CONFIG.googleReviewUrl,
+          mobileUrl: DEFAULT_CONFIG.googleReviewUrlMobile,
+          fallbackUrl: correctUrl
+        })
+      )
     };
   }
 };
