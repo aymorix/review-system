@@ -24,6 +24,7 @@ const DEFAULT_CONFIG = {
   companySubtitle: 'Software & Technology Solutions',
   googleReviewUrl: import.meta.env.VITE_GOOGLE_REVIEW_URL || '',
   googleReviewUrlMobile: import.meta.env.VITE_GOOGLE_REVIEW_URL_MOBILE || '',
+  googleSheetName: import.meta.env.VITE_GOOGLE_SHEET_NAME || '',
   
   // Google OAuth 2.0 Credentials for Sheets API
   googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID || '',

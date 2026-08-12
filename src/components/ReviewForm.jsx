@@ -103,7 +103,15 @@ export const ReviewForm = ({ config, onOpenSuccess, isAiGenerated, setIsAiGenera
     };
 
     saveLocalReview(payload);
-    await submitToGoogleSheets(config, payload);
+    const sheetResult = await submitToGoogleSheets(config, payload);
+    if (!sheetResult?.success) {
+      setSubmitting(false);
+      setErrorMsg(sheetResult?.reason === 'Google Sheet name missing'
+        ? 'Google Sheet name is not configured. Add VITE_GOOGLE_SHEET_NAME in .env.'
+        : `Could not save to Google Sheets${sheetResult?.error ? `: ${sheetResult.error}` : '.'}`);
+      return;
+    }
+
     setSubmitting(false);
     onOpenSuccess({ reviewText: payload.comment, rating });
     resetForm();

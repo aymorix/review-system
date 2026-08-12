@@ -8,10 +8,16 @@ export const submitToGoogleSheets = async (config, reviewPayload) => {
   const clientSecret = config.googleClientSecret || getEnvVar('VITE_GOOGLE_CLIENT_SECRET');
   const refreshToken = config.googleRefreshToken || getEnvVar('VITE_GOOGLE_REFRESH_TOKEN');
   const spreadsheetId = config.googleSpreadsheetId || getEnvVar('VITE_GOOGLE_SPREADSHEET_ID');
+  const sheetName = config.googleSheetName || getEnvVar('VITE_GOOGLE_SHEET_NAME');
 
   if (!spreadsheetId) {
     console.warn('Google Spreadsheet ID not configured. Saving review locally.');
     return { success: false, reason: 'Google Spreadsheet ID missing' };
+  }
+
+  if (!sheetName) {
+    console.warn('Google Sheet name not configured. Saving review locally.');
+    return { success: false, reason: 'Google Sheet name missing' };
   }
 
   try {
@@ -42,7 +48,7 @@ export const submitToGoogleSheets = async (config, reviewPayload) => {
     ];
 
     // Step 3: Call Google Sheets API v4 Append Endpoint
-    const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Sheet1!A1:append?valueInputOption=USER_ENTERED`;
+    const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(sheetName)}!A1:append?valueInputOption=USER_ENTERED`;
 
     const sheetsResponse = await fetch(appendUrl, {
       method: 'POST',

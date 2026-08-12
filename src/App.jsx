@@ -59,7 +59,7 @@ export default function App() {
               </div>
               <div className="header-brand-text">
                 <h1 className="header-company-name">AYMORIX TECHNOLOGIES</h1>
-                <div className="header-company-sub">Software Systems</div>
+                <div className="header-company-sub">Software Company</div>
               </div>
             </div>
           </header>
@@ -82,10 +82,6 @@ export default function App() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <ShieldCheck size={14} color="var(--brand-primary)" />
             Official Feedback Portal • {config.companyName || 'Aymorix Technologies'}
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <Sparkles size={11} color="var(--brand-primary)" />
-            Powered by Automated Sheets Sync &amp; AI Engine
           </div>
         </footer>
 
