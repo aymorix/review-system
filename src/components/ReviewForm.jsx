@@ -10,6 +10,7 @@ import {
 export const ReviewForm = ({ config, onOpenSuccess, isAiGenerated, setIsAiGenerated, reviewComment, setReviewComment }) => {
   const [name,        setName]        = useState('');
   const [rating,      setRating]      = useState(5);
+  const [copied,      setCopied]      = useState(false);
   const [answers,     setAnswers]     = useState({
     q1: config.questions[0]?.options[0] || '',
     q2: config.questions[1]?.options[0] || '',
@@ -38,6 +39,17 @@ export const ReviewForm = ({ config, onOpenSuccess, isAiGenerated, setIsAiGenera
 
   const progressPercent = Math.round((filledCount / 8) * 100);
 
+  const copyToClipboard = async (text) => {
+    if (!text || !text.trim()) return;
+    try {
+      await navigator.clipboard.writeText(text.trim());
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch (e) {
+      console.warn('Clipboard copy failed:', e);
+    }
+  };
+
   const handleAiMode = async () => {
     setGenerating(true);
     try {
@@ -52,6 +64,7 @@ export const ReviewForm = ({ config, onOpenSuccess, isAiGenerated, setIsAiGenera
       setReviewComment(text);
       setIsAiGenerated(true);
       setGenCount(c => c + 1);
+      await copyToClipboard(text);
     } catch(e) { 
       console.error(e); 
     }
@@ -222,8 +235,29 @@ export const ReviewForm = ({ config, onOpenSuccess, isAiGenerated, setIsAiGenera
           onChange={e => {
             setReviewComment(e.target.value);
             setIsAiGenerated(false);
+            if (e.target.value && e.target.value.trim()) {
+              copyToClipboard(e.target.value);
+            }
           }}
         />
+
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginTop: 8,
+          fontSize: '0.76rem',
+          color: '#1d4ed8',
+          fontWeight: 700,
+          gap: 8
+        }}>
+          <span>
+            {copied ? '✓ Review copied to clipboard' : 'Review is auto-copied'}
+          </span>
+          <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>
+            Paste into Google review box
+          </span>
+        </div>
 
         {isAiGenerated && (
           <div className="ai-badge">
