@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { generateSingleAiReview } from '../services/aiService';
 import { submitToGoogleSheets }   from '../services/googleSheetsService';
-import { saveLocalReview }        from '../services/storageService';
+import { resolveGoogleReviewUrl, saveLocalReview } from '../services/storageService';
 import { StarRating }             from './StarRating';
 import {
   User, Send, RefreshCw, Wand2, CheckCircle2, AlertCircle, Sparkles
@@ -113,7 +113,14 @@ export const ReviewForm = ({ config, onOpenSuccess, isAiGenerated, setIsAiGenera
     }
 
     setSubmitting(false);
-    onOpenSuccess({ reviewText: payload.comment, rating });
+
+    const googleUrl = resolveGoogleReviewUrl(
+      config.googleReviewUrl,
+      config.googleReviewUrlMobile,
+      config.googleReviewUrl || ''
+    );
+
+    window.open(googleUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
