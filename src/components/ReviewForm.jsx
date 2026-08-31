@@ -114,7 +114,6 @@ export const ReviewForm = ({ config, onOpenSuccess, isAiGenerated, setIsAiGenera
 
     setSubmitting(false);
     onOpenSuccess({ reviewText: payload.comment, rating });
-    resetForm();
   };
 
   return (
@@ -250,7 +249,7 @@ export const ReviewForm = ({ config, onOpenSuccess, isAiGenerated, setIsAiGenera
         className="btn-primary"
         disabled={submitting}
       >
-        <span>{submitting ? 'SUBMITTING...' : 'SUBMIT FEEDBACK'}</span>
+        <span>{submitting ? 'SUBMITTING...' : 'Post Review on Google'}</span>
         <Send size={16} />
       </button>
 
